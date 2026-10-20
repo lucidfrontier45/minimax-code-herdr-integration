@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "name": "herdr-integration",
+  "displayName": "Herdr Integration",
+  "version": "1.0.0",
+  "description": "Reports MiniMax Code lifecycle state and the session resume command to Herdr.",
+  "author": "local",
+  "category": "Other",
+  "exampleQueries": [],
+  "hooks": [
+    "hooks/hooks.json"
+  ],
+  "icon": "icon.png",
+  "apps": [],
+  "mcpServers": [],
+  "skills": []
+}

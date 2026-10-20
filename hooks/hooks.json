@@ -1,0 +1,74 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require((process.env.MINIMAX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) + '/bin/herdr-report.cjs')\""
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require((process.env.MINIMAX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) + '/bin/herdr-report.cjs')\""
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require((process.env.MINIMAX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) + '/bin/herdr-report.cjs')\""
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require((process.env.MINIMAX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) + '/bin/herdr-report.cjs')\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require((process.env.MINIMAX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) + '/bin/herdr-report.cjs')\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require((process.env.MINIMAX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) + '/bin/herdr-report.cjs')\""
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"require((process.env.MINIMAX_PLUGIN_ROOT || process.env.PLUGIN_ROOT) + '/bin/herdr-report.cjs')\""
+          }
+        ]
+      }
+    ]
+  }
+}

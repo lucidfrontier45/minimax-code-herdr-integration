@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# mcode-herdr -- launch MiniMax Code and tell Herdr about it immediately.
+#
+# Why this exists: MiniMax Code creates its session lazily. No plugin hook
+# fires until the first prompt is submitted, so a plugin alone can only report
+# "an agent is here" *after* the user already typed something. This wrapper
+# runs before mcode starts, in the pane's shell, where HERDR_PANE_ID and
+# HERDR_BIN_PATH are available, and reports the agent as idle right away.
+#
+# The lifecycle plugin (herdr-integration) takes over from there: it adds the
+# session id and the resume command as soon as the session exists.
+#
+# Usage:
+#   mcode-herdr                 # interactive session
+#   mcode-herdr --session <id>  # resume an existing session
+#   mcode-herdr --report-only   # report the pane and exit (debugging)
+
+set -uo pipefail
+
+HERDR_BIN="${HERDR_BIN_PATH:-herdr}"
+SOURCE="mcode"
+AGENT="mcode"
+STATE_DIR="${HOME}/.minimax/v2/plugin-data/hooks/herdr-integration"
+
+# Shared with the plugin so that sequence numbers never go backwards.
+next_seq() {
+  local dir="$STATE_DIR" file="$STATE_DIR/seq" last=0 now seq
+  mkdir -p "$dir" 2>/dev/null || true
+  now=$(date +%s%3N 2>/dev/null || echo "")
+  case "$now" in ''|*[!0-9]*) now="$(date +%s)000" ;; esac
+  if [ -f "$file" ]; then
+    last=$(cat "$file" 2>/dev/null || echo 0)
+    case "$last" in ''|*[!0-9]*) last=0 ;; esac
+  fi
+  seq="$now"
+  [ "$seq" -le "$last" ] && seq=$((last + 1))
+  printf '%s' "$seq" >"$file" 2>/dev/null || true
+  printf '%s' "$seq"
+}
+
+# Non-interactive subcommands must not create a phantom agent in the pane.
+interactive=1
+report_only=0
+session_id=""
+prev=""
+for arg in "$@"; do
+  case "$arg" in
+    --report-only) report_only=1 ;;
+    exec|acp|app-server|plugin|login|logout|update|provider|tools)
+      interactive=0 ;;
+    -v|--version|-h|--help) interactive=0 ;;
+  esac
+  if [ "$prev" = "--session" ]; then session_id="$arg"; fi
+  case "$arg" in --session) prev="--session" ;; *) prev="" ;; esac
+done
+
+report() {
+  [ -n "${HERDR_PANE_ID:-}" ] || return 0
+  command -v "$HERDR_BIN" >/dev/null 2>&1 || return 0
+  local args=(
+    pane report-agent "$HERDR_PANE_ID"
+    --source "$SOURCE"
+    --agent "$AGENT"
+    --state idle
+    --seq "$(next_seq)"
+  )
+  if [ -n "$session_id" ]; then
+    args+=(--agent-session-id "$session_id" -- mcode --session "$session_id")
+  fi
+  "$HERDR_BIN" "${args[@]}" >/dev/null 2>&1 || true
+}
+
+if [ "$interactive" = "1" ]; then
+  report
+fi
+
+if [ "$report_only" = "1" ]; then
+  exit 0
+fi
+
+exec mcode "$@"
